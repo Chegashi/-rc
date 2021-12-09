@@ -2,7 +2,7 @@
 # export PATH=$HOME/bin:/usr/local/bin:$PATH
 
 # Path to your oh-my-zsh installation.
-export ZSH="/home/abort/.oh-my-zsh"
+export ZSH="/Users/mochegri/.oh-my-zsh"
 
 # Set name of the theme to load --- if set to "random", it will
 # load a random theme each time oh-my-zsh is loaded, in which case,
@@ -23,14 +23,13 @@ ZSH_THEME="robbyrussell"
 # Case-sensitive completion must be off. _ and - will be interchangeable.
 # HYPHEN_INSENSITIVE="true"
 
-# Uncomment the following line to disable bi-weekly auto-update checks.
-# DISABLE_AUTO_UPDATE="true"
-
-# Uncomment the following line to automatically update without prompting.
-# DISABLE_UPDATE_PROMPT="true"
+# Uncomment one of the following lines to change the auto-update behavior
+# zstyle ':omz:update' mode disabled  # disable automatic updates
+# zstyle ':omz:update' mode auto      # update automatically without asking
+# zstyle ':omz:update' mode reminder  # just remind me to update when it's time
 
 # Uncomment the following line to change how often to auto-update (in days).
-# export UPDATE_ZSH_DAYS=13
+# zstyle ':omz:update' frequency 13
 
 # Uncomment the following line if pasting URLs and other text is messed up.
 # DISABLE_MAGIC_FUNCTIONS="true"
@@ -45,6 +44,9 @@ ZSH_THEME="robbyrussell"
 # ENABLE_CORRECTION="true"
 
 # Uncomment the following line to display red dots whilst waiting for completion.
+# You can also set it to another string to have that shown instead of the default red dots.
+# e.g. COMPLETION_WAITING_DOTS="%F{yellow}waiting...%f"
+# Caution: this setting can cause issues with multiline prompts in zsh < 5.7.1 (see #5765)
 # COMPLETION_WAITING_DOTS="true"
 
 # Uncomment the following line if you want to disable marking untracked files
@@ -69,7 +71,7 @@ ZSH_THEME="robbyrussell"
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
 plugins=(git)
-
+plugins=( zsh-autosuggestions zsh-syntax-highlighting)
 source $ZSH/oh-my-zsh.sh
 
 # User configuration
@@ -95,28 +97,21 @@ source $ZSH/oh-my-zsh.sh
 # For a full list of active aliases, run `alias`.
 #
 # Example aliases
-# alias zshconfig="mate ~/.zshrc"
+# alias zshconfig="mate ~/.zs hrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
+alias code='/Applications/Visual\ Studio\ Code.app/Contents/Resources/app/bin/code'
 
-# >>> conda initialize >>>
-# !! Contents within this block are managed by 'conda init' !!
-__conda_setup="$('/home/abort/miniconda3/bin/conda' 'shell.bash' 'hook' 2> /dev/null)"
-if [ $? -eq 0 ]; then
-    eval "$__conda_setup"
-else
-    if [ -f "/home/abort/miniconda3/etc/profile.d/conda.sh" ]; then
-        . "/home/abort/miniconda3/etc/profile.d/conda.sh"
-    else
-        export PATH="/home/abort/miniconda3/bin:$PATH"
-    fi
-fi
-unset __conda_setup
-# <<< conda initialize <<<
+export PATH=$HOME/.brew/bin:$PATH
+export PATH="$HOME/.brew/bin:$PATH"
+export PATH=$HOME/.brew/bin:$PATH
 
+alias dockerstp='docker stop $(docker ps -aq)'
+alias dockermc='docker rm -f $(docker ps -aq)'
+alias dockermi='docker rmi -f $(docker images -aq)'
+alias dockermvlm='docker volume rm $(docker volume ls -q)'
+alias dockermnet='docker network rm  $(docker network ls -q)'
+alias dockercl='dockerstp ; dockermc ; dockermi ; dockermvlm ; dockermnet'
+alias clean="rm -rf ~/Library/.42_cache_bak_; rm -rf ~/.42_cache_bak_; brew cleanup"
+alias brew_install="rm -rf $HOME/.brew && git clone --depth=1 https://github.com/Homebrew/brew $HOME/.brew && echo 'export PATH=$HOME/.brew/bin:$PATH' >> $HOME/.zshrc && source $HOME/.zshrc && brew update; curl https://brew.42.fr/ | bash"
+alias valgrind='brew install --HEAD https://raw.githubusercontent.com/LouisBrunner/valgrind-macos/master/valgrind.rb; brew update && brew install valgrind && alias valgrind="~/.brew/bin/valgrind"'
 
-alias tf="conda activate tf"
-alias py=python3.8
-alias op=xdg-open
-alias fssm=/home/abort/Desktop/edu/fssm
-alias upd='sudo apt-get update && sudo apt-get -y upgrade'
-alias opencla='/home/abort/Desktop/edu/openclassrooms'
