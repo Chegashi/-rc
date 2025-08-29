@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# curl -fsSL https://raw.githubusercontent.com/Chegashi/-rc/master/ubuntu-dev-setup.sh | bash
 # ----------------------------------------------------------------------------
 # Ubuntu Dev Machine Bootstrapper
 #
@@ -27,7 +28,9 @@
 # - On WSL, GUI/snap steps are skipped automatically.
 # - After install, log out/in (or reboot) so docker group changes take effect.
 # ----------------------------------------------------------------------------
-set -euo pipefail
+set -eu
+[ -n "${BASH_VERSION:-}" ] && set -o pipefail
+
 export DEBIAN_FRONTEND=${DEBIAN_FRONTEND:-noninteractive}
 
 # --------------------------- Config defaults -------------------------------
@@ -105,7 +108,6 @@ update_system() {
   sudo apt-get autoclean -y
 }
 
-$1
 
 install_dev_extras() {
   [[ "$INSTALL_DEV_EXTRAS" == "1" ]] || { warn "Skipping dev extras (INSTALL_DEV_EXTRAS=0)."; return; }
@@ -569,6 +571,15 @@ final_summary() {
   echo "- If you installed Conda, open a new shell to load 'conda' into your PATH."
   echo "- Your ~/.zshrc was updated (backup saved if it existed). Start a new terminal to use zsh."
 }
+
+install_base_cli() {
+  info "Installing base CLI utilities..."
+  sudo apt-get install -y \
+    build-essential curl wget git vim zsh unzip ca-certificates gnupg \
+    software-properties-common apt-transport-https lsb-release \
+    gnome-tweaks htop nmap gnome-system-monitor gnome-clocks synaptic
+}
+
 
 # --------------------------- Main ------------------------------------------
 main() {
