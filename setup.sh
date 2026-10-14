@@ -152,18 +152,21 @@ install_base_cli() {
   sudo apt-get install -y \
     build-essential curl wget git vim zsh unzip ca-certificates gnupg \
     software-properties-common apt-transport-https lsb-release \
-    htop nmap synaptic
+    htop nmap synaptic \
+    || warn "Some base packages failed — continuing."
 }
 
 install_dev_extras() {
   [[ "$INSTALL_DEV_EXTRAS" == "1" ]] || { warn "Skipping dev extras."; return; }
   info "Installing developer utilities (ripgrep, fd, bat, jq, yq, tmux, cmake, clang, gdb, ...)."
   sudo apt-get install -y \
-    ripgrep fd-find bat tree jq yq tmux stow zip unzip rsync \
-    net-tools dnsutils iproute2 iputils-ping tldr direnv \
-    cmake clang gdb lldb valgrind ccache pkg-config ninja-build
-  info "Installing modern CLI goodies (neovim, fzf, zoxide, eza, lazygit, httpie, ...)."
-  apt_opt neovim fzf zoxide eza bat-extras ncdu duf dust gdu btop \
+    ripgrep fd-find bat tree jq tmux stow zip unzip rsync \
+    net-tools dnsutils iproute2 iputils-ping direnv \
+    cmake clang gdb lldb valgrind ccache pkg-config ninja-build \
+    || warn "Some core dev packages failed — continuing."
+  info "Installing modern CLI goodies (neovim, fzf, zoxide, eza, httpie, tldr, ...)."
+  # Tolerant: these vary by Ubuntu release (e.g. tldr/eza/dust may be absent).
+  apt_opt yq tldr tealdeer neovim fzf zoxide eza bat-extras ncdu duf dust gdu btop \
           httpie xclip xsel wl-clipboard entr watch aria2 p7zip-full unrar \
           gnupg pass pwgen caca-utils ffmpeg imagemagick
   append_once debian-aliases <<'EOF'
@@ -178,7 +181,10 @@ EOF
 install_python_tooling() {
   [[ "$INSTALL_PY_TOOLS" == "1" ]] || { warn "Skipping Python tooling."; return; }
   info "Installing Python tooling (pipx + linters/formatters)..."
-  sudo apt-get install -y python3-pip python3-venv pipx
+  sudo apt-get install -y python3-pip python3-venv pipx \
+    || { warn "pipx not packaged on this release — installing via pip."; \
+         sudo apt-get install -y python3-pip python3-venv; \
+         python3 -m pip install --user pipx || true; }
   python3 -m pip install --user --upgrade pip setuptools wheel || true
   pipx ensurepath || true
   for pkg in poetry pre-commit black ruff pipenv pyright; do pipx install "$pkg" || true; done
