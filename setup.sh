@@ -285,21 +285,24 @@ install_go() {
 install_java() {
   [[ "$INSTALL_JAVA" == "1" ]] || { warn "Skipping Java toolchain."; return; }
   info "Installing Java (OpenJDK 17, Maven, Gradle)..."
-  sudo apt-get install -y openjdk-17-jdk maven gradle
+  apt_opt openjdk-17-jdk openjdk-21-jdk default-jdk maven gradle
 }
 
 install_devops_suite() {
   [[ "$INSTALL_DEVOPS" == "1" ]] || { warn "Skipping DevOps suite."; return; }
   info "Installing DevOps tooling (Ansible, Vagrant)..."
-  sudo apt-get install -y ansible vagrant
+  apt_opt ansible vagrant
 }
 
 install_virtualization() {
   [[ "$INSTALL_DEVOPS" == "1" ]] || return
   is_wsl && { warn "WSL — skipping virtualization."; return; }
   info "Installing virtualization tools (KVM/QEMU + virt-manager)..."
-  sudo apt-get install -y qemu-kvm libvirt-daemon-system libvirt-clients bridge-utils virt-manager
-  sudo usermod -aG libvirt,kvm "$USER" || true
+  # qemu-kvm was renamed/split on newer Ubuntu (qemu-system-x86). Tolerant install
+  # so a renamed or missing package doesn't abort the whole script.
+  apt_opt qemu-kvm qemu-system-x86 qemu-system qemu-utils \
+          libvirt-daemon-system libvirt-clients bridge-utils virtinst virt-manager
+  sudo usermod -aG libvirt,kvm "$USER" 2>/dev/null || true
 }
 
 install_gh_cli() {
