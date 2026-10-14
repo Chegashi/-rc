@@ -50,7 +50,11 @@ GUI / snap / GNOME steps are skipped automatically.
 | Recon (Go) | nuclei, httpx, subfinder, naabu, ffuf — `INSTALL_RECON_GO` |
 | Wordlists | rockyou, SecLists, PayloadsAllTheThings in `~/wordlists` + `/usr/share/wordlists` — `INSTALL_WORDLISTS` |
 | GUI security | OWASP ZAP, Ghidra (snap) — `INSTALL_BURP_ZAP` (Burp Suite is a manual download) |
-| GUI apps (snap) | VS Code, PyCharm, Sublime, GitKraken, Postman, Slack, DBeaver, Insomnia, draw.io, Obsidian, VLC, GIMP, LibreOffice, KeePassXC, Brave, Opera |
+| GUI apps (snap) | VS Code, PyCharm, Sublime, GitKraken, Postman, Slack, DBeaver, Insomnia, draw.io, Obsidian, VLC, GIMP, LibreOffice, KeePassXC |
+| Browsers | Brave, Opera, **Google Chrome** (`.deb`), Firefox (ships with Ubuntu) |
+| Everyday apps | Discord, Telegram, Signal, Thunderbird, WhatsApp, Spotify, OBS Studio, Blender, Inkscape, Krita, Audacity, Joplin, Bitwarden, Flameshot, Remmina, Okular, GNOME Boxes, Alacritty/Kitty — `INSTALL_DESKTOP_APPS` |
+| CLI goodies | neovim, fzf, zoxide, eza, btop, httpie, ffmpeg, imagemagick, 7zip, aria2, pass — on top of ripgrep/fd/bat/jq/tmux |
+| Flatpak | Flatpak + Flathub enabled for anything not on snap/apt — `INSTALL_FLATPAK` |
 | Shell | Oh My Zsh + zsh-autosuggestions + zsh-syntax-highlighting, Docker/QoL aliases, big history |
 | Desktop | GNOME Tweaks + Extension Manager, Papirus icons, dark mode, dev fonts, dock/window/keyboard tweaks, battery %, Super+E → Home |
 | Hardening *(opt-in)* | ClamAV, GDM user-list hidden — `INSTALL_HARDENING=1` |

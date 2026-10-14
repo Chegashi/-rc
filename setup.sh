@@ -81,6 +81,9 @@ INSTALL_WORDLISTS=${INSTALL_WORDLISTS:-1}      # rockyou + SecLists + PayloadsAl
 INSTALL_RECON_GO=${INSTALL_RECON_GO:-1}        # ProjectDiscovery suite (nuclei/httpx/subfinder) + ffuf
 INSTALL_BURP_ZAP=${INSTALL_BURP_ZAP:-1}        # OWASP ZAP (free Burp alternative) + Ghidra
 INSTALL_DB_GUI=${INSTALL_DB_GUI:-1}
+INSTALL_DESKTOP_APPS=${INSTALL_DESKTOP_APPS:-1}  # chat/media/productivity apps
+INSTALL_CHROME=${INSTALL_CHROME:-1}              # Google Chrome (.deb)
+INSTALL_FLATPAK=${INSTALL_FLATPAK:-1}            # enable Flatpak + Flathub
 INSTALL_IDEA=${INSTALL_IDEA:-1}
 INSTALL_ANDROID=${INSTALL_ANDROID:-0}
 # Desktop look & feel
@@ -159,10 +162,16 @@ install_dev_extras() {
     ripgrep fd-find bat tree jq yq tmux stow zip unzip rsync \
     net-tools dnsutils iproute2 iputils-ping tldr direnv \
     cmake clang gdb lldb valgrind ccache pkg-config ninja-build
+  info "Installing modern CLI goodies (neovim, fzf, zoxide, eza, lazygit, httpie, ...)."
+  apt_opt neovim fzf zoxide eza bat-extras ncdu duf dust gdu btop \
+          httpie xclip xsel wl-clipboard entr watch aria2 p7zip-full unrar \
+          gnupg pass pwgen caca-utils ffmpeg imagemagick
   append_once debian-aliases <<'EOF'
 # Debian-friendly aliases
 alias fd='fdfind'
 alias bat='batcat'
+command -v zoxide >/dev/null && eval "$(zoxide init zsh)"
+command -v eza >/dev/null && alias ls='eza --group-directories-first'
 EOF
 }
 
@@ -502,6 +511,52 @@ install_gui_snaps() {
   fi
 }
 
+install_flatpak() {
+  [[ "$INSTALL_FLATPAK" == "1" ]] || { warn "Skipping Flatpak."; return; }
+  [[ "$HEADLESS" == "1" ]] && { warn "HEADLESS — skipping Flatpak."; return; }
+  is_wsl && { warn "WSL — skipping Flatpak."; return; }
+  info "Enabling Flatpak + Flathub (so you can grab anything not on snap/apt)..."
+  sudo apt-get install -y flatpak gnome-software-plugin-flatpak || warn "Flatpak install failed."
+  sudo flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo || true
+}
+
+install_chrome() {
+  [[ "$INSTALL_CHROME" == "1" ]] || { warn "Skipping Google Chrome."; return; }
+  [[ "$HEADLESS" == "1" ]] && { warn "HEADLESS — skipping Chrome."; return; }
+  is_wsl && { warn "WSL — skipping Chrome."; return; }
+  has_cmd google-chrome && { info "Chrome already present."; return; }
+  [[ "$(dpkg --print-architecture)" == "amd64" ]] || { warn "Chrome .deb is amd64 only — skipping."; return; }
+  info "Installing Google Chrome (official .deb)..."
+  TMPD=$(mktemp -d); pushd "$TMPD" >/dev/null
+  curl -fsSLO https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+  sudo apt-get install -y ./google-chrome-stable_current_amd64.deb || sudo apt-get -f install -y
+  popd >/dev/null; rm -rf "$TMPD"
+}
+
+install_desktop_apps() {
+  [[ "$INSTALL_DESKTOP_APPS" == "1" ]] || { warn "Skipping extra desktop apps."; return; }
+  [[ "$HEADLESS" == "1" ]] && { warn "HEADLESS — skipping extra desktop apps."; return; }
+  is_wsl && { warn "WSL — skipping extra desktop apps."; return; }
+  info "Installing everyday desktop apps (chat, media, notes, remote, screenshots)..."
+  # Communication
+  for s in discord telegram-desktop signal-desktop thunderbird whatsapp-for-linux; do
+    sudo snap install "$s" || warn "$s snap failed (optional)."
+  done
+  # Media & creative
+  for s in spotify obs-studio blender inkscape krita audacity vlc; do
+    sudo snap install "$s" || warn "$s snap failed (optional)."
+  done
+  sudo snap install blender --classic 2>/dev/null || true
+  # Productivity / notes / remote / screenshots
+  for s in joplin-desktop bitwarden standard-notes; do
+    sudo snap install "$s" || warn "$s snap failed (optional)."
+  done
+  apt_opt flameshot remmina okular gnome-boxes transmission-gtk
+  # Terminals & extra dev apps
+  for s in alacritty; do sudo snap install "$s" --classic || warn "$s snap failed (optional)."; done
+  apt_opt kitty tmux neovim
+}
+
 install_k8s_tools() {
   [[ "$INSTALL_K8S" == "1" ]] || { warn "Skipping Kubernetes tools."; return; }
   if is_wsl; then
@@ -760,6 +815,9 @@ main() {
 
   setup_snap
   install_gui_snaps
+  install_flatpak
+  install_chrome
+  install_desktop_apps
   install_k8s_tools
   install_minikube
   install_virtualization
