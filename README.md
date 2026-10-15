@@ -1,9 +1,16 @@
-# Ubuntu Dev / DevOps / Security Workstation Bootstrapper
+# Dev / DevOps / Security Workstation Bootstrappers
 
-One script — [`setup.sh`](setup.sh) — that turns a freshly installed Ubuntu
-(Desktop, Server, or WSL) into a ready-to-work machine: developer tooling,
-languages, containers & cloud, security/analysis tools, GUI apps, a configured
-Zsh, and a clean modern GNOME desktop.
+Two scripts for setting up a fresh machine:
+
+- [`setup.sh`](setup.sh) — **Ubuntu** (Desktop/Server/WSL): developer tooling,
+  languages, containers & cloud, a full Kali-equivalent pentest toolset, GUI
+  apps, a configured Zsh, and a clean modern GNOME desktop.
+- [`kali-setup.sh`](kali-setup.sh) — **Kali Linux post-install**: Kali already
+  ships the offensive tools, so this adds what it doesn't — dev/cloud/container
+  tooling, exploit-dev tooling, wordlist setup, QoL Zsh config, and desktop
+  tweaks (auto-detects Xfce — Kali's default — or GNOME).
+
+## Ubuntu — `setup.sh`
 
 ## Quick start
 
@@ -112,3 +119,32 @@ GNOME_RESTORE_FROM=~/gnome-settings-backup-20260101-120000.dconf ./setup.sh
   zsh, and the GNOME look fully take effect.
 - Open a new shell to load `conda`, `nvm`, and the new Zsh config.
 - Your `~/.zshrc` is updated in place (a timestamped backup is kept if one existed).
+
+---
+
+## Kali Linux — `kali-setup.sh`
+
+Run **after** a fresh Kali install. It updates `kali-rolling`, then layers on the
+non-offensive tooling Kali omits and tunes the box for lab work.
+
+```sh
+bash -c "$(curl -fsSL https://raw.githubusercontent.com/Chegashi/-rc/master/kali-setup.sh)"
+```
+
+| Area | What it does |
+|------|--------------|
+| System | `apt full-upgrade` on kali-rolling, autoremove/clean |
+| Dev | build tools, neovim, tmux, ripgrep/fd/bat/fzf/zoxide/eza, httpie, Python tooling |
+| Exploit dev | pwntools, ROPgadget, one_gadget, GEF (gdb) — via pipx |
+| Containers | Docker + compose, docker group, cleanup aliases |
+| Languages | Node (nvm), Go, Rust |
+| Cloud | kubectl, helm, terraform, awscli (v2 fallback), ansible, gh |
+| Recon (Go) | nuclei, httpx, subfinder, naabu, ffuf + nuclei templates |
+| Metapackages | optional `kali-tools-*` top-ups — `INSTALL_METAPKGS=1` (large) |
+| Wordlists | unpack rockyou + clone SecLists / PayloadsAllTheThings into `~/wordlists` |
+| Shell | appends QoL config to Kali's zsh (never clobbers it); `target <ip>` scratch helper |
+| Desktop | auto-detects **Xfce** (Kali default) or GNOME and applies tweaks |
+
+Toggle any section with env vars, e.g. `INSTALL_DOCKER=0 INSTALL_CLOUD=0 ./kali-setup.sh`.
+
+> **Authorized use only** — your own lab, coursework, and CTFs.
